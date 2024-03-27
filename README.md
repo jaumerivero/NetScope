@@ -32,7 +32,7 @@ pip install -r requirements.txt
 ```
 # Uso
 
-Para utilizar el Advanced Network Scanner, ejecuta el script network_scanner.py con los parámetros deseados. Aquí tienes algunos ejemplos de cómo utilizar la herramienta:
+Para utilizar NetScope, ejecuta el script net_scope.py con los parámetros deseados. Aquí tienes algunos ejemplos de cómo utilizar la herramienta:
 
 ## Escaneo ARP
 
