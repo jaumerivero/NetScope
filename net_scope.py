@@ -5,7 +5,6 @@ import os
 from modules.parse_strings import *
 from modules.port_scanner import *
 from modules.ping_scanner import *
-from modules.arp_scanner import *
 from modules.utils import *
 from concurrent.futures import ThreadPoolExecutor
 from termcolor import colored
