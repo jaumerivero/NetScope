@@ -16,7 +16,16 @@ Características
 
 - **Soporte para Diversos Tipos de Ping**: Admite ping ICMP, TCP y UDP para una mayor flexibilidad en el mapeo de la red.
 
-# Requisitos
+# Instalación
+
+Clona este repositorio y navega al directorio clonado:
+
+```
+git clone https://github.com/username/NetScope
+cd NetScope
+```
+
+## Dependencias
 
 - requests: 2.29.0
 - beautifulsoup4: 4.12.3
@@ -27,15 +36,6 @@ Se pueden instalar las dependencias a través del archivo requirements.txt con e
 
 ```
 pip install -r requirements.txt
-```
-
-# Instalación
-
-Clona este repositorio y navega al directorio clonado:
-
-```
-git clone https://github.com/username/NetScope
-cd NetScope
 ```
 # Uso
 
