@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-
-import argparse
 import os
-from modules.parse_strings import *
+import signal
+import argparse
+from modules.utils import *
+from termcolor import colored
 from modules.port_scanner import *
 from modules.ping_scanner import *
-from modules.utils import *
-from concurrent.futures import ThreadPoolExecutor
-from termcolor import colored
+from modules.parse_strings import *
+
+signal.signal(signal.SIGINT, def_handler)
 
 logo = """
   _   _      _    _____                      
@@ -19,14 +20,11 @@ logo = """
                                  | |         
                                  |_|        
 """
-arp_help = "Perform an ARP scan on the specified target subnet to discover live hosts and their MAC addresses (Ex: -t 192.168.1.0/24 --arp)"
-ping_help = "Perform an ICMP scan on the specified target/s (Ex: -t 192.168.1.1-100 --ping)"
-ping_type_help = "Choose the type of ping (Ex: -t 192.168.1.1 --ping_type tcp)"
-services_help = "Enable banner grabbing to identificate the service and his version running on that port/s (Ex: -t 192.168.1.1 -s)"
+arp_help = "Perform an ARP scan on a target or on a subnet to discover live hosts and their MAC addresses (Ex: -t 192.168.1.0/24 --arp)"
+ping_type_help = "Discover live hosts by performing differents types of ping scans (Ex: -t 192.168.1.1 --ping icmp)"
+services_help = "Enable service identification to identificate the services information running on that port/s (Ex: -t 192.168.1.1 -s)"
 syn_scan_help = "Perform a SYN scan on the specified target/s port/s (Ex: -t 192.168.1.1 -sY)"
-ack_scan_help = "Perfron a ACK scan on the specified target/s (Ex: -t 192.168.1.1 -aC)"
-
-signal.signal(signal.SIGINT, def_handler)
+ack_scan_help = "Perform a ACK scan on the specified target/s (Ex: -t 192.168.1.1 -aC)"
 
 class CustomHelpParser(argparse.ArgumentParser):
     def print_help(self):
@@ -36,10 +34,9 @@ class CustomHelpParser(argparse.ArgumentParser):
 
 def get_arguments():
     parser = CustomHelpParser()
-    parser.add_argument("-t", "--target", dest="target", required=True, help="Set target to scan (Ex: -t 192.168.1.1)")
-    parser.add_argument("-p", "--port", dest="port", help="Port range to scan (Ex: -p 1-100)")
-    parser.add_argument("--ping", dest="ping", action='store_true', help=ping_help)
-    parser.add_argument("--ping_type", dest="ping_type", choices=['icmp', 'udp', 'tcp'], help=ping_type_help)
+    parser.add_argument("-t", "--target", dest="target", required=True, help="Set target/s to scan (Ex: -t 192.168.1.1)")
+    parser.add_argument("-p", "--port", dest="port", help="Set port or port range to scan (Ex: -p 1-100)")
+    parser.add_argument("--ping", dest="ping", choices=['icmp', 'tcp', 'udp'],help=ping_type_help)
     parser.add_argument("--arp", dest="arp", action='store_true', help=arp_help)
     parser.add_argument("-s", "--services", dest="services", action='store_true', help=services_help)
     parser.add_argument("-sY", "--syn_scan", dest="syn", action='store_true', help=syn_scan_help)
@@ -47,31 +44,28 @@ def get_arguments():
     
     options = parser.parse_args()
 
-    return options.target, options.port, options.ping, options.ping_type, options.arp, options.services, options.syn, options.ack
+    return options.target, options.port, options.ping, options.arp, options.services, options.syn, options.ack
 
 def main():
-    target, ports_str, ping, ping_type, arp, services, syn, ack = get_arguments()
-    
+    if not os.geteuid() == 0:
+        print(colored("\n[!] net_scope.py requires root privileges. Please run the script as root.\n", 'red'))
+        sys.exit(1)
+
+    target, ports_str, ping, arp, services, syn, ack = get_arguments()
+
     targets = parse_target(target)
-    ports = parse_ports(ports_str) if ports_str else common_ports  # Optimizado
+    ports = parse_ports(ports_str) if ports_str else common_ports
     services_param = False if not services else services
     syn_param = False if not syn else syn
-
+    
     if arp:
-        if not os.geteuid() == 0:
-            print(colored("\n[!] ARP scan requires root privileges. Please run the script as root.", 'red'))
-            sys.exit(1)
-        arp_scan(target)
+        arp_ping(target)
 
-    elif ping or ping_type:  # Maneja tanto --ping como --ping_type
-        ping_type = ping_type if ping_type in ['icmp', 'tcp', 'udp'] else 'icmp'
+    elif ping:
+        ping_type = ping
         host_scanner(targets, ports if ping_type in ['tcp', 'udp'] else False, ping_type)
     
-    else:  # Escaneo de puertos
-        if syn and not os.geteuid() == 0:
-            print(colored("\n[!] SYN scan requires root privileges. Please run the script as root.", 'red'))
-            sys.exit(1)
-
+    else:
         scan_ports(ports, target, services_param, syn_param, ack)
 
 if __name__ == "__main__":

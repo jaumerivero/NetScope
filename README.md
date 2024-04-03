@@ -1,6 +1,7 @@
 # NetScope
 
-NetScope una herramienta de línea de comandos diseñada para realizar escaneos de red eficientes y detallados. Con capacidad para realizar escaneos ARP, ICMP, SYN y ACK, así como detección de servicios a través de la técnica de banner grabbing, esta herramienta es esencial para profesionales de la seguridad informática y entusiastas del networking.
+NetScope una herramienta de línea de comandos diseñada para realizar escaneos de red eficientes y detallados. Con capacidad para realizar escaneos ARP, ICMP, SYN y ACK, así como detección de servicios a través de la técnica de banner grabbing, análisis de cabeceras HTTP y otras más.
+
 Características
 
 - **Escaneo ARP**: Descubre hosts activos y sus direcciones MAC en una subred especificada.
@@ -17,6 +18,16 @@ Características
 
 # Requisitos
 
+- requests: 2.29.0
+- beautifulsoup4: 4.12.3
+- termcolor: 1.1.0
+- scapy: 2.5.0
+
+Se pueden instalar las dependencias a través del archivo requirements.txt con el siguiente comando:
+
+```
+pip install -r requirements.txt
+```
 
 # Instalación
 
@@ -25,10 +36,6 @@ Clona este repositorio y navega al directorio clonado:
 ```
 git clone https://github.com/username/NetScope
 cd NetScope
-```
-# Instala las dependencias necesarias:
-```
-pip install -r requirements.txt
 ```
 # Uso
 
@@ -42,7 +49,7 @@ sudo ./net_scope.py -t 192.168.1.0/24 --arp
 
 ## Escaneo ICMP
 ```
-./net_scope.py -t 192.168.1.1-100 --ping
+./net_scope.py -t 192.168.1.1-100 --ping icmp
 ```
 ## Escaneo SYN
 ```
